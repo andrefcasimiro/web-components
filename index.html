@@ -7,16 +7,36 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="./style.css">
     <title>My Website</title>
+
+    <style>
+      body {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow-x: hidden;
+        box-sizing: border-box;
+      }
+    </style>
   </head>
 
   <body>
-
-    <root-element>
-      <h2>Hey, I'm nested!!</h2>
-    </root-element>
+    <navbar-element
+      logo="Enterprise Solutions"
+      links='[
+        {
+          "name": "Home",
+          "href": "/"
+        },
+        {
+          "name": "Getting Started",
+          "href": "/"
+        }
+      ]'
+    ></navbar-element>
 
     <!-- Component Imports -->
-    <script src="components/root-element.js"></script>
+    <script src="components/navbar-element.js"></script>
 
   </body>
 </html>
