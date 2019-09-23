@@ -19,6 +19,12 @@ class Root extends HTMLElement {
       ${style}
 
       <p>Root Element</p>
+
+      <div>
+        <slot />
+      </div>
+
+      <p>Ending</p>
     `
   }
 }
