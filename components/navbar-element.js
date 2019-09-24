@@ -94,6 +94,31 @@ style = context => `
         cursor: pointer;
       }
 
+      .contextMenuWrapper {
+        position: relative;
+      }
+
+      .contextMenu {
+        position: absolute;
+        width: 100%;
+        min-height: 10rem;
+        background: ${context._backgroundColor};
+        color: white;
+        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        border: 1px solid red;
+      }
+
+      .contextMenu ul {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 1rem 0;
+      }
+
+      .contextMenu li {
+        justify-content: center;
+        margin: 0.5rem 0;
+      }
     }
   </style>
 `
@@ -131,7 +156,7 @@ class Navbar extends HTMLElement {
 
     this._root = this.attachShadow({ mode: "open" })
     this._logo = this.getAttribute("logo") || "My App"
-    this._links = this.getAttribute("links") || []
+    this._links = this.getAttribute("links") || ""
     this._backgroundColor = this.getAttribute("background-color") || "#0B9CEC"
     this._breakpoint = this.getAttribute("breakpoint") || "480"
     this._isOpen = false
@@ -160,6 +185,10 @@ class Navbar extends HTMLElement {
   mapLinks = () => {
     const navLinks = JSON.parse(this.links)
 
+    if (!navLinks || !navLinks.length) {
+      throw new Error("Could not JSON parse navlinks!")
+    }
+
     return navLinks.map(link => `
       <li><a href="${link.href}">${link.name}</a></li>
     `).join('')
@@ -169,10 +198,13 @@ class Navbar extends HTMLElement {
     const value = !this._isOpen
 
     this.isOpen = value
+
+    console.log(this.isOpen)
   }
 
 
   connectedCallback() {
+
     this._root.innerHTML = `
       ${style(this)}
 
@@ -185,15 +217,27 @@ class Navbar extends HTMLElement {
 
         <input type="text" name="search" placeholder="Search..." label="search"></input>
 
-          <svg onclick="" class="hamburguer" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style="color: rgb(51, 51, 51);"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+        <svg onclick="" class="hamburguer" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style="color: rgb(51, 51, 51);"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
       </navbar>
+      <div class="contextMenuWrapper">
+        <div class="contextMenu">
+          <ul>
+            ${this.mapLinks()}
+          </ul>
+        </div>
+      </div>
     `
 
     // Event Listeners Within Shadow Tree
-    this._root.querySelector('.hamburguer').addEventListener('click', () => {
+    this._root.querySelector(".hamburguer").addEventListener("click", () => {
       this.toggleOpen()
+
+      this._root.querySelector(".contextMenuWrapper").style.display = this.isOpen ? "flex" : "none"
     })
 
+
+    // Default On Mount Behaviours
+    this._root.querySelector(".contextMenuWrapper").style.display = "none";
   }
 }
 
