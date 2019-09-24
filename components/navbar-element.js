@@ -1,6 +1,18 @@
-const style = context => `
+style = context => `
   <style>
     @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+    @keyframes fadeInFromLeft {
+      0% {
+        transform: translate(-50%);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translate(0);
+        opacity: 1;
+      }
+    }
 
     :host {
       color: white;
@@ -13,20 +25,30 @@ const style = context => `
       align-items: center;
       background-color: ${context._backgroundColor};
       height: 4rem;
+      padding: 0.5rem;
+    }
+
+    h2 {
+      animation: fadeInFromLeft ease 1s 1;
+    }
+
+
+    a {
+      color: white;
+      text-decoration: none;
     }
 
     ul {
       display: flex;
-      height: 100%;
       flex-direction: row;
       padding: 0;
       margin: 0;
+      animation: fadeInFromLeft ease 1s 1;
     }
 
     li {
       display: flex;
-      height: 100%;
-      margin-right: 0.5rem;
+      margin: 0 0.5rem;
       list-style: none;
     }
 
@@ -34,27 +56,44 @@ const style = context => `
       display: flex;
       justify-content: space-evenly;
       align-items: center;
-      height: 100%;
       color: white;
       text-decoration: none;
-      padding: 0 0.5rem;
     }
 
     li a:hover {
-      background: #097CBC;
       text-decoration: underline;
-    }
-
-    a {
-      color: white;
-      text-decoration: none;
+      transition: 0.3s ease all;
     }
 
     input {
       border-radius: 1rem;
-      border: 1px solid #097CBC;
+      border: 1px solid transparent;
       padding: 0.8rem;
       height: 0.15rem;
+      animation: fadeInFromLeft ease 1s 1;
+    }
+
+    .hamburguer {
+      display: none;
+    }
+
+    @media all and (max-width: ${context._breakpoint}px) {
+      ul {
+        display: none;
+      }
+
+      input {
+        display: none;
+      }
+
+      .hamburguer {
+        display: flex;
+        fill: white;
+        width: 2rem;
+        height: 100%;
+        cursor: pointer;
+      }
+
     }
   </style>
 `
@@ -80,6 +119,9 @@ const style = context => `
     The navbar background color
     Ex. <navbar-element background-color='red' ...
 
+  @breakpoint - {string}
+    The breakpoint (in pixels) that the navbar should adapt to mobile view
+    Ex. <navbar-element breakpoint='480' ...
 
  */
 
@@ -90,16 +132,14 @@ class Navbar extends HTMLElement {
     this._root = this.attachShadow({ mode: "open" })
     this._logo = this.getAttribute("logo") || "My App"
     this._links = this.getAttribute("links") || []
-
     this._backgroundColor = this.getAttribute("background-color") || "#0B9CEC"
+    this._breakpoint = this.getAttribute("breakpoint") || "480"
+    this._isOpen = false
   }
 
-  get logo() {
-    return this._logo;
-  }
-  get links() {
-    return this._links;
-  }
+  get logo() { return this._logo }
+  get links() { return this._links }
+  get isOpen() { return this._isOpen }
 
   set logo(value) {
     if (value != this._logo) {
@@ -111,6 +151,11 @@ class Navbar extends HTMLElement {
       this._links = value
     }
   }
+  set isOpen(value) {
+    if (value != this._isOpen) {
+      this._isOpen = value
+    }
+  }
 
   mapLinks = () => {
     const navLinks = JSON.parse(this.links)
@@ -118,6 +163,12 @@ class Navbar extends HTMLElement {
     return navLinks.map(link => `
       <li><a href="${link.href}">${link.name}</a></li>
     `).join('')
+  }
+
+  toggleOpen = () => {
+    const value = !this._isOpen
+
+    this.isOpen = value
   }
 
 
@@ -133,8 +184,16 @@ class Navbar extends HTMLElement {
         </ul>
 
         <input type="text" name="search" placeholder="Search..." label="search"></input>
+
+          <svg onclick="" class="hamburguer" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style="color: rgb(51, 51, 51);"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
       </navbar>
     `
+
+    // Event Listeners Within Shadow Tree
+    this._root.querySelector('.hamburguer').addEventListener('click', () => {
+      this.toggleOpen()
+    })
+
   }
 }
 
